@@ -16,7 +16,10 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "eslint": "^9",
+    "eslint": "^10.13.0",
     "eslint-config-next": "16.3.5"
+  },
+  "allowScripts": {
+    "unrs-resolver": true
   }
 }
