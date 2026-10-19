@@ -76,6 +76,9 @@ export default function Header() {
             <Link href="/#contacto" className="btn btn-primary drawer-contact-btn" onClick={closeMenu}>
               Agendar Cita en Trujillo
             </Link>
+            <Link href="/admin.html" className="btn btn-outline drawer-contact-btn" style={{ marginTop: "0.5rem" }} onClick={closeMenu}>
+              🔒 Portal Staff
+            </Link>
           </nav>
 
           {/* Nav Actions */}

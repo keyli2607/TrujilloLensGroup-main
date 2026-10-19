@@ -1,10 +1,11 @@
-import AdminDashboard from "../../components/AdminDashboard";
+import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Panel administrativo | Lens Group Trujillo",
+  title: "Portal Staff & Panel de Decisiones | Lens Group Trujillo",
   robots: { index: false, follow: false },
 };
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  redirect("/admin.html");
 }
+
