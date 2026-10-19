@@ -165,9 +165,10 @@
 
           <button type="button" class="sidebar-nav-btn" data-view="postventa" data-roles="clinical,admin,superadmin">
             <div class="nav-btn-content">
-              ${LG.icon('checkCircle', { size: 18, sw: 2 })}
-              <span>Seguimiento Postventa</span>
+              ${LG.icon('users', { size: 18, sw: 2 })}
+              <span>CRM &amp; Pacientes</span>
             </div>
+            <span class="nav-badge-pill" id="sidebarCrmBadge">10</span>
           </button>
 
           <!-- 4. ADMINISTRACIÓN GLOBAL (Super Admin) -->
@@ -1029,16 +1030,109 @@
           <div class="catalog-grid" id="catalogAdultGrid"></div>
         </section>
 
-        <!-- VISTA: POSTVENTA -->
+        <!-- VISTA: CRM & POSTVENTA -->
         <section class="dash-view" id="view-postventa">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Seguimiento Postventa y Pacientes</h2>
-              <p>Lista de clientes para entrega de lentes, notificaciones automáticas y registro de garantías locales.</p>
+              <h2>CRM Oftalmológico &amp; Contactabilidad de Pacientes</h2>
+              <p>Fidelización, seguimiento postventa de adaptación, control visual anual y contacto directo vía WhatsApp.</p>
+            </div>
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+              <button type="button" class="btn-primary-action" onclick="openNewPatientModal()">
+                ${LG.icon('userAdd', { size: 16, sw: 2.5 })}
+                <span>+ Nuevo Paciente CRM</span>
+              </button>
+              <button type="button" class="btn-header-action" onclick="openCrmTemplatesModal()">
+                ${LG.icon('chat', { size: 15, sw: 2 })}
+                <span>Plantillas WhatsApp</span>
+              </button>
+              <button type="button" class="btn-header-action" onclick="exportCrmCsv()" title="Exportar cartera a CSV">
+                ${LG.icon('download', { size: 15, sw: 2 })}
+                <span>Exportar CSV</span>
+              </button>
             </div>
           </div>
-          <div style="background: rgba(15, 23, 42, 0.4); border: 1px dashed rgba(255,255,255,0.1); border-radius: 8px; padding: 4rem; text-align: center; color: var(--admin-text-muted);">
-            CRM Local para contactabilidad de pacientes en construcción.
+
+          <!-- KPIs DEL CRM -->
+          <div class="kpi-grid">
+            <div class="kpi-card" style="--kpi-color: #0d9488;">
+              <div class="kpi-header">
+                <span class="kpi-label">Pacientes en Cartera</span>
+                <span class="kpi-icon" style="background: rgba(13, 148, 136, 0.1); color: #0d9488;">👥</span>
+              </div>
+              <div class="kpi-value" id="crmKpiTotal">10</div>
+              <div class="kpi-footer"><span class="kpi-trend trend-up">✓ Base de datos activa</span></div>
+            </div>
+
+            <div class="kpi-card" style="--kpi-color: #10b981;">
+              <div class="kpi-header">
+                <span class="kpi-label">Listos p/ Retiro</span>
+                <span class="kpi-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">📦</span>
+              </div>
+              <div class="kpi-value" id="crmKpiListo">2</div>
+              <div class="kpi-footer"><span class="kpi-trend" style="color: #10b981;">💬 Por notificar recojo</span></div>
+            </div>
+
+            <div class="kpi-card" style="--kpi-color: #0284c7;">
+              <div class="kpi-header">
+                <span class="kpi-label">En Adaptación (1-15d)</span>
+                <span class="kpi-icon" style="background: rgba(2, 132, 199, 0.1); color: #0284c7;">👓</span>
+              </div>
+              <div class="kpi-value" id="crmKpiAdaptacion">2</div>
+              <div class="kpi-footer"><span class="kpi-trend" style="color: #0284c7;">🔍 Control de confort</span></div>
+            </div>
+
+            <div class="kpi-card" style="--kpi-color: #d97706;">
+              <div class="kpi-header">
+                <span class="kpi-label">Control Visual Anual</span>
+                <span class="kpi-icon" style="background: rgba(217, 119, 6, 0.1); color: #d97706;">📅</span>
+              </div>
+              <div class="kpi-value" id="crmKpiControl">2</div>
+              <div class="kpi-footer"><span class="kpi-trend" style="color: #d97706;">⚠️ Cita preventiva</span></div>
+            </div>
+
+            <div class="kpi-card" style="--kpi-color: #8b5cf6;">
+              <div class="kpi-header">
+                <span class="kpi-label">Garantías Vigentes</span>
+                <span class="kpi-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">🛡️</span>
+              </div>
+              <div class="kpi-value" id="crmKpiGarantia">2</div>
+              <div class="kpi-footer"><span class="kpi-trend" style="color: #8b5cf6;">✨ Calibración gratuita</span></div>
+            </div>
+          </div>
+
+          <!-- TABLA CRM -->
+          <div class="orders-table-panel">
+            <div class="table-toolbar">
+              <input type="text" class="table-search-input" id="crmSearchInput" placeholder="🔍 Buscar paciente por nombre, DNI, teléfono, ticket..." style="width: 320px;">
+              <div class="table-status-tabs" id="crmStatusTabs">
+                <button type="button" class="tab-btn active" data-filter="all">Todos (<span id="crmTabCountAll">10</span>)</button>
+                <button type="button" class="tab-btn" data-filter="listo">📦 Listos (<span id="crmTabCountListo">2</span>)</button>
+                <button type="button" class="tab-btn" data-filter="adaptacion">👓 Adaptación (<span id="crmTabCountAdaptacion">2</span>)</button>
+                <button type="button" class="tab-btn" data-filter="control">📅 Control Anual (<span id="crmTabCountControl">2</span>)</button>
+                <button type="button" class="tab-btn" data-filter="garantia">🛡️ Garantía (<span id="crmTabCountGarantia">2</span>)</button>
+                <button type="button" class="tab-btn" data-filter="fidelizado">⭐ Fidelizados (<span id="crmTabCountFidelizado">2</span>)</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Paciente / Identificación</th>
+                    <th>Contacto &amp; WhatsApp</th>
+                    <th>Montura &amp; Lunas</th>
+                    <th>Graduación Óptica</th>
+                    <th>Etapa CRM / Estado</th>
+                    <th>Seguimiento Postventa</th>
+                    <th style="text-align: right;">Acciones Directas</th>
+                  </tr>
+                </thead>
+                <tbody id="crmTableBody">
+                  <!-- Inyectado dinámicamente por renderCRM() -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
