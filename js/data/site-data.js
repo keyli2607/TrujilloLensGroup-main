@@ -42,8 +42,7 @@
         { label: 'Nosotros', href: '#nosotros' },
         { label: 'Testimonios', href: '#testimonios' },
         { label: 'Contacto', href: '#contacto' },
-        { label: 'Seguimiento', href: '#seguimiento', title: 'Seguimiento de Pedido' },
-        { label: 'Portal Staff', href: 'admin.html', title: 'Portal Staff Óptico & Administración' }
+        { label: 'Seguimiento', href: '#seguimiento', title: 'Seguimiento de Pedido' }
       ],
       tracking: [
         { label: 'Inicio', href: 'index.html#inicio' },
@@ -53,8 +52,7 @@
         { label: 'Nosotros', href: 'index.html#nosotros' },
         { label: 'Testimonios', href: 'index.html#testimonios' },
         { label: 'Contacto', href: 'index.html#contacto' },
-        { label: 'Seguimiento', href: 'seguimiento.html' },
-        { label: 'Portal Staff', href: 'admin.html', title: 'Portal Staff Óptico & Administración' }
+        { label: 'Seguimiento', href: 'seguimiento.html' }
       ]
     },
 
