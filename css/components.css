@@ -145,6 +145,32 @@ body {
   width: 100%;
 }
 
+.nav-link-staff {
+  color: var(--color-teal-700) !important;
+  font-weight: 700 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(13, 148, 136, 0.08);
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 9999px;
+  border: 1px solid rgba(13, 148, 136, 0.25);
+  transition: all 0.2s ease;
+}
+
+.nav-link-staff:hover {
+  background: var(--color-teal-600) !important;
+  color: #ffffff !important;
+  border-color: var(--color-teal-600);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+}
+
+.nav-link-staff::after {
+  display: none !important;
+}
+
+
 .nav-actions {
   display: flex;
   align-items: center;
