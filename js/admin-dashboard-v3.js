@@ -3446,22 +3446,66 @@ async function renderUsers() {
       return;
     }
 
-    tbody.innerHTML = users.map(u => `
+    const estadoConfig = {
+      activo:     { label: 'ACTIVO',     cls: 'user-estado-activo' },
+      inactivo:   { label: 'INACTIVO',   cls: 'user-estado-inactivo' },
+      suspendido: { label: 'SUSPENDIDO', cls: 'user-estado-suspendido' }
+    };
+
+    tbody.innerHTML = users.map(u => {
+      const estadoVal = u.estado || (u.activo !== false ? 'activo' : 'inactivo');
+      const cfg = estadoConfig[estadoVal] || estadoConfig.activo;
+      return `
       <tr>
         <td><strong>${u.nombres || ''} ${u.apellidos || ''}</strong></td>
         <td><code>${u.dni}</code></td>
         <td><span class="stock-pill stock-good">${u.rol || 'Staff'}</span></td>
         <td>Galería San Antonio, Jr. Gamarra N° 778</td>
-        <td><span class="badge-status badge-listo">${u.activo !== false ? 'Activo' : 'Inactivo'}</span></td>
+        <td>
+          <select class="user-estado-select ${cfg.cls}" onchange="updateUserEstado('${u.id}', this)">
+            <option value="activo"     ${estadoVal === 'activo'     ? 'selected' : ''}>🟢 ACTIVO</option>
+            <option value="inactivo"   ${estadoVal === 'inactivo'   ? 'selected' : ''}>🔴 INACTIVO</option>
+            <option value="suspendido" ${estadoVal === 'suspendido' ? 'selected' : ''}>🟡 SUSPENDIDO</option>
+          </select>
+        </td>
         <td style="text-align: right;">
           <span style="font-size: 0.8rem; color: var(--admin-text-dim);">Registrado</span>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   } catch (err) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #ef4444;">Error consultando usuarios en Supabase.</td></tr>`;
   }
 }
+
+window.updateUserEstado = async function(userId, selectEl) {
+  const nuevoEstado = selectEl.value;
+  const clsMap = { activo: 'user-estado-activo', inactivo: 'user-estado-inactivo', suspendido: 'user-estado-suspendido' };
+
+  // Actualizar clase visual inmediatamente
+  selectEl.className = `user-estado-select ${clsMap[nuevoEstado] || ''}`;
+
+  try {
+    const body = {
+      estado: nuevoEstado,
+      activo: nuevoEstado === 'activo'
+    };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${userId}`, {
+      method: 'PATCH',
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('Error al actualizar');
+    showToast(`Estado actualizado a ${nuevoEstado.toUpperCase()}`);
+  } catch (err) {
+    showToast('Error al guardar el estado: ' + err.message);
+  }
+};
 
 document.getElementById('formNewUser')?.addEventListener('submit', async function(e) {
   e.preventDefault();

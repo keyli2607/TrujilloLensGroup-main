@@ -1585,6 +1585,44 @@ body.dark-mode {
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
+/* === ESTADOS DE USUARIO (3 tipos) === */
+.user-estado-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 20px;
+  padding: 0.28rem 0.9rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.user-estado-select:hover {
+  filter: brightness(1.15);
+}
+
+.user-estado-activo {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.user-estado-inactivo {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+}
+
+.user-estado-suspendido {
+  background: rgba(234, 179, 8, 0.18);
+  color: #fde047;
+  border: 1px solid rgba(234, 179, 8, 0.35) !important;
+}
+
 .badge-urgente {
   background: rgba(244, 63, 94, 0.2);
   color: #fda4af;
