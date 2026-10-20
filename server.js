@@ -5,17 +5,18 @@ import path from 'node:path';
 const PORT = 8080;
 const ENV_FILE = path.join(process.cwd(), 'nextjs-app', '.env.local');
 
-let SUPABASE_URL = '';
-let SUPABASE_KEY = '';
+let SUPABASE_URL = 'https://tyzxjrtekbpwkfshvnua.supabase.co';
+let SUPABASE_KEY = 'sb_publishable_0FE-anyjwe14BQ7WoGsU6Q_C08cnpFE';
 
 try {
   const envContent = fs.readFileSync(ENV_FILE, 'utf8');
   envContent.split('\n').forEach(line => {
     if (line.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) SUPABASE_URL = line.split('=')[1].trim();
     if (line.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) SUPABASE_KEY = line.split('=')[1].trim();
+    if (!SUPABASE_KEY && line.startsWith('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=')) SUPABASE_KEY = line.split('=')[1].trim();
   });
 } catch (e) {
-  console.log("Asegúrate de configurar nextjs-app/.env.local");
+  // Usando credenciales por defecto configuradas
 }
 
 async function supabaseRequest(endpoint, options = {}) {

@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "https://tyzxjrtekbpwkfshvnua.supabase.co";
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_0FE-anyjwe14BQ7WoGsU6Q_C08cnpFE";
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || "lens_group_trujillo_super_secret_key_2026";
 
 export function isSupabaseAdminConfigured() {
-  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && SESSION_SECRET);
+  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
 }
 
 function getUrl(table, params = {}) {

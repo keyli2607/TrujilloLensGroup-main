@@ -5,8 +5,8 @@
 
 const ADMIN_STORAGE_KEY = 'lens_group_admin_session';
 
-const SUPABASE_URL = 'https://rsjondlejagmnjrmbolf.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_A86Q2r3lrF6z14HunWuuwQ_Y-G8ziVV';
+const SUPABASE_URL = 'https://tyzxjrtekbpwkfshvnua.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_0FE-anyjwe14BQ7WoGsU6Q_C08cnpFE';
 
 // Ya no usamos las rutas locales /api porque en GitHub Pages no hay servidor Node
 const API_ORDERS_URL = `${SUPABASE_URL}/rest/v1/ordenes_laboratorio?select=*,ventas(*)`;
@@ -1813,6 +1813,11 @@ window.handleNewSaleSubmit = async function(e) {
 
   // Guardar en estado de ventas
   state.sales.unshift(newSale);
+  try {
+    if (window.LG?.supabase?.createSale) {
+      window.LG.supabase.createSale(newSale).catch(err => console.warn('[Supabase] Venta no guardada en nube:', err));
+    }
+  } catch (e) {}
 
   // Si se marcó orden de taller automática, generarla
   if (newSale.tallerGenerado) {
@@ -2460,37 +2465,71 @@ function handleLogout() {
 }
 
 // ==========================================================================
-// 5. CARGA Y SINCRONIZACIÓN DE ÓRDENES
+// 5. CARGA Y SINCRONIZACIÓN DE ÓRDENES Y MÓDULOS DE SUPABASE
 // ==========================================================================
 async function loadOrders() {
+  // 1. Cargar Órdenes de Laboratorio
   try {
-    const res = await fetch(API_ORDERS_URL, {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    if (window.LG?.supabase?.getOrders) {
+      const supaOrders = await window.LG.supabase.getOrders();
+      if (supaOrders && Object.keys(supaOrders).length > 0) {
+        state.orders = supaOrders;
+      } else {
+        state.orders = DEFAULT_ORDERS;
       }
-    });
-    if (res.ok) {
-      const ordenes = await res.json();
-      const mapOrders = {};
-      (ordenes || []).forEach(o => {
-        mapOrders[o.numero_ticket] = {
-          code: o.numero_ticket,
-          estado: o.estado,
-          urgente: o.urgente,
-          service: o.ventas?.montura_descripcion || 'Montura',
-          treatment: o.ventas?.luna_descripcion || 'Cristales',
-          price: 0,
-          cost: 0,
-          currentStep: o.estado === 'Entregado' ? 5 : o.estado === 'Listo para Recojo' ? 4 : o.estado === 'En Proceso' ? 2 : 1
-        };
-      });
-      state.orders = mapOrders;
     } else {
-      state.orders = DEFAULT_ORDERS;
+      const res = await fetch(API_ORDERS_URL, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      });
+      if (res.ok) {
+        const ordenes = await res.json();
+        const mapOrders = {};
+        (ordenes || []).forEach(o => {
+          mapOrders[o.numero_ticket] = {
+            code: o.numero_ticket,
+            estado: o.estado,
+            urgente: o.urgente,
+            service: o.ventas?.montura_descripcion || 'Montura',
+            treatment: o.ventas?.luna_descripcion || 'Cristales',
+            price: Number(o.ventas?.precio_total) || 0,
+            cost: Number(o.ventas?.costo_total) || 0,
+            currentStep: o.estado === 'Entregado' ? 5 : o.estado === 'Listo para Recojo' ? 4 : o.estado === 'En Proceso' ? 2 : 1
+          };
+        });
+        state.orders = Object.keys(mapOrders).length > 0 ? mapOrders : DEFAULT_ORDERS;
+      } else {
+        state.orders = DEFAULT_ORDERS;
+      }
     }
   } catch (err) {
     state.orders = DEFAULT_ORDERS;
+  }
+
+  // 2. Cargar Ventas de Supabase
+  try {
+    if (window.LG?.supabase?.getSales) {
+      const supaSales = await window.LG.supabase.getSales();
+      if (supaSales && supaSales.length > 0) {
+        state.sales = supaSales;
+      }
+    }
+  } catch (err) {
+    console.warn('[Admin] Fallback a ventas locales:', err);
+  }
+
+  // 3. Cargar Inventario de Supabase
+  try {
+    if (window.LG?.supabase?.getInventory) {
+      const supaInv = await window.LG.supabase.getInventory();
+      if (supaInv && supaInv.length > 0) {
+        state.inventory = supaInv;
+      }
+    }
+  } catch (err) {
+    console.warn('[Admin] Fallback a inventario local:', err);
   }
 
   updateMetricsAndDecisions();

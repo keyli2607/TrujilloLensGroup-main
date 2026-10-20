@@ -2,45 +2,45 @@ const fs = require('fs');
 const path = require('path');
 const ENV_FILE = path.join(process.cwd(), 'nextjs-app', '.env.local');
 
-let SUPABASE_URL = '';
-let SUPABASE_KEY = '';
+let SUPABASE_URL = 'https://tyzxjrtekbpwkfshvnua.supabase.co';
+let SUPABASE_KEY = 'sb_publishable_0FE-anyjwe14BQ7WoGsU6Q_C08cnpFE';
 
 try {
   const envContent = fs.readFileSync(ENV_FILE, 'utf8');
   envContent.split('\n').forEach(line => {
     if (line.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) SUPABASE_URL = line.split('=')[1].trim();
-    if (line.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) SUPABASE_KEY = line.split('=')[1].trim();
+    if (line.startsWith('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=')) SUPABASE_KEY = line.split('=')[1].trim();
   });
-} catch (e) {
-  console.log("Asegúrate de configurar nextjs-app/.env.local");
-}
+} catch (e) {}
 
-async function supabaseRequest(endpoint, options = {}) {
+async function supabaseRequest(endpoint) {
   const url = new URL(`/rest/v1/${endpoint}`, SUPABASE_URL);
   const res = await fetch(url, {
-    ...options,
     headers: {
       'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Content-Type': 'application/json',
-      'Prefer': options.method === 'POST' || options.method === 'PATCH' ? 'return=representation' : '',
-      ...(options.headers || {})
+      'Content-Type': 'application/json'
     }
   });
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.message || 'Error en Supabase');
-  return data;
+  return { status: res.status, ok: res.ok, data };
 }
 
-async function test() {
-  const u = '12345678';
-  const p = '1234';
-  try {
-    const users = await supabaseRequest(`usuarios?select=*&dni=eq.${u}&pin=eq.${p}&limit=1`);
-    console.log("USERS:", users);
-  } catch (err) {
-    console.error("ERROR:", err);
+async function testAll() {
+  const tables = ['usuarios', 'pacientes', 'ventas', 'ordenes_laboratorio', 'inventario_monturas', 'banco_lunas', 'catalogo_mercaderia'];
+  console.log(`Conectando a: ${SUPABASE_URL}`);
+  for (const t of tables) {
+    try {
+      const res = await supabaseRequest(`${t}?select=*&limit=3`);
+      if (res.ok) {
+        console.log(`✅ [${t}]: OK (${Array.isArray(res.data) ? res.data.length : 0} registros)`);
+      } else {
+        console.log(`❌ [${t}]: Error ${res.status}:`, res.data?.message || res.data);
+      }
+    } catch (e) {
+      console.log(`❌ [${t}]: Excepción:`, e.message);
+    }
   }
 }
 
-test();
+testAll();
